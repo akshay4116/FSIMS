@@ -4,27 +4,7 @@ import {
     ClockIcon, CheckCircleIcon, XCircleIcon, UsersIcon
 } from "@heroicons/react/24/solid";
 
-export default function CollegeDashboard({ auth }) {
-    // Dummy College Data
-    const collegeDetails = {
-        name: "ABC Engineering College",
-        code: "COLL001",
-        address: "123 Main St, New York",
-        city: "New York",
-        state: "NY",
-        country: "USA",
-        contact: "+1 9876543210",
-        email: "info@abcengineering.com",
-    };
-
-    // Dummy Stats
-    const stats = {
-        totalStudents: 120,
-        visaPending: 15,
-        visaApproved: 90,
-        visaExpired: 15,
-    };
-
+export default function CollegeDashboard({ auth, college, stats }) {
     const userLinks = [
         { label: "Dashboard", href: "/college/dashboard" },
         { label: "Students", href: "/college/students" },
@@ -35,7 +15,7 @@ export default function CollegeDashboard({ auth }) {
             {/* ✅ Header Component */}
             <Header user={auth.user} links={userLinks} />
 
-            <div className="max-w-7xl mx-auto mt-6 ">
+            <div className="max-w-7xl mx-auto mt-6">
                 <h2 className="text-2xl font-bold text-center mb-6">College Dashboard</h2>
 
                 {/* ✅ Grid Layout (60% College Details, 40% Stats) */}
@@ -50,49 +30,31 @@ export default function CollegeDashboard({ auth }) {
                                 <span className="flex items-center">
                                     <AcademicCapIcon className="h-5 w-5 text-blue-600 mr-2" /> Name:
                                 </span>
-                                <span>{collegeDetails.name}</span>
+                                <span>{college?.college_name}</span>
                             </li>
                             <li className="flex justify-between border-b pb-2">
                                 <span className="flex items-center">
                                     <IdentificationIcon className="h-5 w-5 text-gray-600 mr-2" /> College Code:
                                 </span>
-                                <span>{collegeDetails.code}</span>
+                                <span>{college?.college_code}</span>
                             </li>
                             <li className="flex justify-between border-b pb-2">
                                 <span className="flex items-center">
                                     <MapPinIcon className="h-5 w-5 text-red-600 mr-2" /> Address:
                                 </span>
-                                <span>{collegeDetails.address}</span>
-                            </li>
-                            <li className="flex justify-between border-b pb-2">
-                                <span className="flex items-center">
-                                    <MapPinIcon className="h-5 w-5 text-purple-600 mr-2" /> City:
-                                </span>
-                                <span>{collegeDetails.city}</span>
-                            </li>
-                            <li className="flex justify-between border-b pb-2">
-                                <span className="flex items-center">
-                                    <GlobeAltIcon className="h-5 w-5 text-yellow-600 mr-2" /> State:
-                                </span>
-                                <span>{collegeDetails.state}</span>
-                            </li>
-                            <li className="flex justify-between border-b pb-2">
-                                <span className="flex items-center">
-                                    <GlobeAltIcon className="h-5 w-5 text-green-600 mr-2" /> Country:
-                                </span>
-                                <span>{collegeDetails.country}</span>
+                                <span>{college?.college_address}, {college?.college_city}, {college?.college_state}</span>
                             </li>
                             <li className="flex justify-between border-b pb-2">
                                 <span className="flex items-center">
                                     <PhoneIcon className="h-5 w-5 text-indigo-600 mr-2" /> Contact:
                                 </span>
-                                <span>{collegeDetails.contact}</span>
+                                <span>{college?.college_phone_number}</span>
                             </li>
                             <li className="flex justify-between">
                                 <span className="flex items-center">
                                     <EnvelopeIcon className="h-5 w-5 text-gray-700 mr-2" /> Email:
                                 </span>
-                                <span>{collegeDetails.email}</span>
+                                <span>{college?.college_email}</span>
                             </li>
                         </ul>
                     </div>
@@ -103,7 +65,7 @@ export default function CollegeDashboard({ auth }) {
                         <div className="bg-blue-600 text-white p-6 rounded-lg shadow-md flex justify-between items-center">
                             <div>
                                 <h3 className="text-lg font-bold">Total Students</h3>
-                                <p className="text-2xl font-bold">{stats.totalStudents}</p>
+                                <p className="text-2xl font-bold">{stats?.totalStudents}</p>
                             </div>
                             <UsersIcon className="h-10 w-10 text-white" />
                         </div>
@@ -112,7 +74,7 @@ export default function CollegeDashboard({ auth }) {
                         <div className="bg-yellow-500 text-white p-6 rounded-lg shadow-md flex justify-between items-center">
                             <div>
                                 <h3 className="text-lg font-bold">Visa Pending</h3>
-                                <p className="text-2xl font-bold">{stats.visaPending}</p>
+                                <p className="text-2xl font-bold">{stats?.visaPending}</p>
                             </div>
                             <ClockIcon className="h-10 w-10 text-white" />
                         </div>
@@ -121,7 +83,7 @@ export default function CollegeDashboard({ auth }) {
                         <div className="bg-green-500 text-white p-6 rounded-lg shadow-md flex justify-between items-center">
                             <div>
                                 <h3 className="text-lg font-bold">Visa Approved</h3>
-                                <p className="text-2xl font-bold">{stats.visaApproved}</p>
+                                <p className="text-2xl font-bold">{stats?.visaApproved}</p>
                             </div>
                             <CheckCircleIcon className="h-10 w-10 text-white" />
                         </div>
@@ -130,7 +92,7 @@ export default function CollegeDashboard({ auth }) {
                         <div className="bg-red-500 text-white p-6 rounded-lg shadow-md flex justify-between items-center">
                             <div>
                                 <h3 className="text-lg font-bold">Visa Expired</h3>
-                                <p className="text-2xl font-bold">{stats.visaExpired}</p>
+                                <p className="text-2xl font-bold">{stats?.visaExpired}</p>
                             </div>
                             <XCircleIcon className="h-10 w-10 text-white" />
                         </div>

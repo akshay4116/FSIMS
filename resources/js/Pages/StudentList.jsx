@@ -2,15 +2,11 @@ import Header from "../components/Header";
 import { EyeIcon, PencilIcon, TrashIcon, PlusIcon } from "@heroicons/react/24/solid";
 import { Link } from "@inertiajs/react";
 
-export default function StudentList({ auth }) {
-    // Dummy Static Data for Students
-    const students = [
-        { id: 1, name: "John Doe", phone: "9876543210", collegeCode: "COLL001", address: "123 Main St", country: "USA", passport: "A123456", visa: "VISA123", visaStatus: "Approved" },
-        { id: 2, name: "Jane Smith", phone: "8765432109", collegeCode: "COLL002", address: "456 Elm St", country: "Canada", passport: "B654321", visa: "VISA456", visaStatus: "Pending" },
-        { id: 3, name: "Michael Brown", phone: "7654321098", collegeCode: "COLL003", address: "789 Oak St", country: "UK", passport: "C987654", visa: "VISA789", visaStatus: "Rejected" },
-    ];
+export default function StudentList({ auth, students }) {
 
-    const isAdmin = auth.user.role === "admin"; // Check user role
+
+    const isAdmin = auth.user.user_role === "admin"; // Ensure correct property name
+
 
     const userLinks = isAdmin
         ? [
@@ -66,19 +62,17 @@ export default function StudentList({ auth }) {
                             {students.map((student, index) => (
                                 <tr key={student.id} className="border-b text-center">
                                     <td className="py-2 px-2 text-left">{index + 1}</td>
-                                    <td className="py-2 px-2 text-left">{student.name}</td>
-                                    <td className="py-2 px-2 text-left">{student.phone}</td>
-                                    <td className="py-2 px-2 text-left">{student.collegeCode}</td>
-                                    <td className="py-2 px-2 text-left">{student.address}</td>
-                                    <td className="py-2 px-2 text-left">{student.country}</td>
-                                    <td className="py-2 px-2 text-left">{student.passport}</td>
-                                    <td className="py-2 px-2 text-left">{student.visa}</td>
-                                    <td className={`py-2 px-2 font-bold ${student.visaStatus === "Approved" ? "text-green-600" : student.visaStatus === "Pending" ? "text-yellow-600" : "text-red-600"}`}>
-                                        {student.visaStatus}
+                                    <td className="py-2 px-2 text-left">{student.student_name}</td>
+                                    <td className="py-2 px-2 text-left">{student.student_phone_number}</td>
+                                    <td className="py-2 px-2 text-left">{student.college_code}</td>
+                                    <td className="py-2 px-2 text-left">{student.student_address}</td>
+                                    <td className="py-2 px-2 text-left">{student.student_country}</td>
+                                    <td className="py-2 px-2 text-left">{student.student_passport_number}</td>
+                                    <td className="py-2 px-2 text-left">{student.student_visa_number}</td>
+                                    <td className={`py-2 px-2 font-bold ${student.student_visa_status === "Approved" ? "text-green-600" : student.student_visa_status === "Pending" ? "text-yellow-600" : "text-red-600"}`}>
+                                        {student.student_visa_status}
                                     </td>
                                     <td className="py-2 px-2 flex justify-center gap-2">
-                                        {/* ✅ If Admin → Show View, Edit, Delete */}
-                                        {/* ✅ If College → Show Only Edit */}
                                         <button className="text-blue-500 hover:text-blue-700">
                                             <EyeIcon className="h-5 w-5" />
                                         </button>

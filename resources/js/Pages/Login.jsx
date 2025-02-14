@@ -1,58 +1,50 @@
 import { useState } from "react";
-import { Link } from "@inertiajs/react";
+import { useForm } from "@inertiajs/react";
+
 
 export default function Login() {
-    const [form, setForm] = useState({
-        email: "",
-        password: "",
+    const { data, setData, post, processing, errors } = useForm({
+        user_email: "",
+        user_password: "",
     });
-
-    const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log("Logging in with:", form);
-        // Later, replace this with Inertia form submission
+        post("/login");
     };
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
-            <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+            <div className="bg-white p-8 rounded-lg shadow-lg w-96">
                 <h2 className="text-2xl font-bold text-center mb-4">Login</h2>
-                <form onSubmit={handleSubmit}>
-                    <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">
-                            Email:
-                        </label>
+                {errors.error && <p className="text-red-500 text-center">{errors.error}</p>}
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-semibold">Email</label>
                         <input
                             type="email"
-                            name="email"
-                            value={form.email}
-                            onChange={handleChange}
-                            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+                            value={data.user_email}
+                            onChange={(e) => setData("user_email", e.target.value)}
+                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
                     </div>
-                    <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">
-                            Password:
-                        </label>
+                    <div>
+                        <label className="block text-sm font-semibold">Password</label>
                         <input
                             type="password"
-                            name="password"
-                            value={form.password}
-                            onChange={handleChange}
-                            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
+                            value={data.user_password}
+                            onChange={(e) => setData("user_password", e.target.value)}
+                            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             required
                         />
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600 transition"
+                        className="w-full bg-blue-500 text-white py-2 rounded-lg font-bold hover:bg-blue-600"
+                        disabled={processing}
                     >
-                        Login
+                        {processing ? "Logging in..." : "Login"}
                     </button>
                 </form>
             </div>

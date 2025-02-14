@@ -4,53 +4,32 @@ import {
     ClockIcon, CheckCircleIcon, XCircleIcon, ChatBubbleBottomCenterTextIcon
 } from "@heroicons/react/24/solid";
 
-export default function StudentDashboard({ auth }) {
-    // Dummy Student Data
-    const studentDetails = {
-        name: "John Doe",
-        email: "johndoe@student.com",
-        dob: "2001-05-21",
-        passport: "A123456",
-        visa: "VISA123",
-        visaStatus: "Approved", // Possible values: Approved, Pending, Expired
-        college: "ABC Engineering College",
-        collegeCode: "COLL001",
-        address: "123 Main St, New York",
-        country: "USA",
-        contact: "+1 9876543210",
-    };
-
-    // Dummy Comments
-    const collegeComment = "Student performance is good. No issues reported.";
-    const adminComment = "Visa renewal is under process. Expected completion in 2 weeks.";
-
-    // Get Background Color Based on Visa Status
+export default function StudentDashboard({ auth, student }) {
     const visaBgColor =
-        studentDetails.visaStatus === "Approved" ? "bg-green-500" :
-            studentDetails.visaStatus === "Pending" ? "bg-yellow-500" :
+        student.student_visa_status === "Approved" ? "bg-green-500" :
+            student.student_visa_status === "Pending" ? "bg-yellow-500" :
                 "bg-red-500";
 
     const visaIcon =
-        studentDetails.visaStatus === "Approved" ? <CheckCircleIcon className="h-10 w-10 text-white" /> :
-            studentDetails.visaStatus === "Pending" ? <ClockIcon className="h-10 w-10 text-white" /> :
+        student.student_visa_status === "Approved" ? <CheckCircleIcon className="h-10 w-10 text-white" /> :
+            student.student_visa_status === "Pending" ? <ClockIcon className="h-10 w-10 text-white" /> :
                 <XCircleIcon className="h-10 w-10 text-white" />;
 
     const userLinks = [
         { label: "Dashboard", href: "/student/dashboard" },
-        { label: "Profile", href: "/student/profile" },
     ];
 
     return (
         <div>
             {/* ✅ Header Component */}
-            <Header user={auth.user} links={userLinks} />
+            <Header user={auth?.user} links={userLinks} />
 
             <div className="max-w-7xl mx-auto mt-6">
                 <h2 className="text-2xl font-bold text-center mb-6">Student Dashboard</h2>
 
                 {/* ✅ Visa Status (Full Width) */}
                 <div className={`${visaBgColor} text-white p-6 rounded-lg shadow-md flex justify-between items-center mb-6`}>
-                    <h3 className="text-lg font-bold">Visa Status: {studentDetails.visaStatus}</h3>
+                    <h3 className="text-lg font-bold">Visa Status: {student.student_visa_status}</h3>
                     {visaIcon}
                 </div>
 
@@ -66,49 +45,49 @@ export default function StudentDashboard({ auth }) {
                                 <span className="flex items-center">
                                     <AcademicCapIcon className="h-5 w-5 text-blue-600 mr-2" /> Name:
                                 </span>
-                                <span>{studentDetails.name}</span>
+                                <span>{student.student_name}</span>
                             </li>
                             <li className="flex justify-between border-b pb-2">
                                 <span className="flex items-center">
                                     <EnvelopeIcon className="h-5 w-5 text-green-600 mr-2" /> Email:
                                 </span>
-                                <span>{studentDetails.email}</span>
+                                <span>{student.student_email}</span>
                             </li>
                             <li className="flex justify-between border-b pb-2">
                                 <span className="flex items-center">
-                                    <AcademicCapIcon className="h-5 w-5 text-purple-600 mr-2" /> College:
+                                    <AcademicCapIcon className="h-5 w-5 text-purple-600 mr-2" /> College Code:
                                 </span>
-                                <span>{studentDetails.college} ({studentDetails.collegeCode})</span>
+                                <span>{student.college_code}</span>
                             </li>
                             <li className="flex justify-between border-b pb-2">
                                 <span className="flex items-center">
                                     <MapPinIcon className="h-5 w-5 text-red-600 mr-2" /> Address:
                                 </span>
-                                <span>{studentDetails.address}</span>
+                                <span>{student.student_address}</span>
                             </li>
                             <li className="flex justify-between border-b pb-2">
                                 <span className="flex items-center">
-                                    <GlobeAltIcon className="h-5 w-5 text-yellow-600 mr-2" /> Country:
+                                    <GlobeAltIcon className="h-5 w-5 text-yellow-600 mr-2" /> City:
                                 </span>
-                                <span>{studentDetails.country}</span>
+                                <span>{student.student_city}</span>
                             </li>
                             <li className="flex justify-between border-b pb-2">
                                 <span className="flex items-center">
                                     <PhoneIcon className="h-5 w-5 text-indigo-600 mr-2" /> Contact:
                                 </span>
-                                <span>{studentDetails.contact}</span>
+                                <span>{student.student_phone_number}</span>
                             </li>
                             <li className="flex justify-between border-b pb-2">
                                 <span className="flex items-center">
                                     <IdentificationIcon className="h-5 w-5 text-gray-600 mr-2" /> Passport No:
                                 </span>
-                                <span>{studentDetails.passport}</span>
+                                <span>{student.student_passport_number}</span>
                             </li>
                             <li className="flex justify-between">
                                 <span className="flex items-center">
                                     <IdentificationIcon className="h-5 w-5 text-gray-700 mr-2" /> Visa No:
                                 </span>
-                                <span>{studentDetails.visa}</span>
+                                <span>{student.student_visa_number}</span>
                             </li>
                         </ul>
                     </div>
@@ -120,7 +99,7 @@ export default function StudentDashboard({ auth }) {
                             <h3 className="text-lg font-bold mb-4 flex items-center">
                                 <ChatBubbleBottomCenterTextIcon className="h-6 w-6 text-blue-600 mr-2" /> College Comments
                             </h3>
-                            <p className="text-gray-700 text-lg">{collegeComment}</p>
+                            <p className="text-gray-700 text-lg">{student.college_comments || "No comments yet."}</p>
                         </div>
 
                         {/* ✅ Admin Comments */}
@@ -128,7 +107,7 @@ export default function StudentDashboard({ auth }) {
                             <h3 className="text-lg font-bold mb-4 flex items-center">
                                 <ChatBubbleBottomCenterTextIcon className="h-6 w-6 text-red-600 mr-2" /> Admin Comments
                             </h3>
-                            <p className="text-gray-700 text-lg">{adminComment}</p>
+                            <p className="text-gray-700 text-lg">{student.admin_comments || "No comments yet."}</p>
                         </div>
                     </div>
                 </div>

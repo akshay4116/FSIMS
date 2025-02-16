@@ -5,6 +5,10 @@ import {
 } from "@heroicons/react/24/solid";
 
 export default function StudentDashboard({ auth, student }) {
+    if (!student) {
+        return <p className="text-center text-red-600">Error: Student data not available.</p>;
+    }
+
     const visaBgColor =
         student.student_visa_status === "Approved" ? "bg-green-500" :
             student.student_visa_status === "Pending" ? "bg-yellow-500" :

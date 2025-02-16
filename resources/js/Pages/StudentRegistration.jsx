@@ -15,6 +15,8 @@ export default function StudentRegistration({ auth, colleges = [] }) {
         return null;
     }
 
+
+
     // ✅ Form State
     const [form, setForm] = useState({
         studentName: "",
@@ -31,6 +33,8 @@ export default function StudentRegistration({ auth, colleges = [] }) {
         visaNumber: "",
     });
 
+    const [successMessage, setSuccessMessage] = useState(""); // ✅ Success Message State
+
     // ✅ Handle Form Input Changes
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -39,8 +43,30 @@ export default function StudentRegistration({ auth, colleges = [] }) {
     // ✅ Handle Form Submission
     const handleSubmit = (e) => {
         e.preventDefault();
-        // ✅ Use Inertia POST instead of traditional form submission
-        router.post(isAdmin ? "/admin/register-student" : "/college/register-student", form);
+        router.post(isAdmin ? "/admin/register-student" : "/college/register-student", form, {
+            onSuccess: () => {
+                // ✅ Clear Form After Successful Submission
+                setForm({
+                    studentName: "",
+                    email: "",
+                    dob: new Date(),
+                    fatherName: "",
+                    phoneNumber: "",
+                    address: "",
+                    city: "",
+                    state: "",
+                    countryname: "",
+                    collegeCode: isAdmin ? "" : auth?.user?.college_code,
+                    passportNumber: "",
+                    visaNumber: "",
+                    password: "",
+                });
+
+                // ✅ Show Success Message
+                setSuccessMessage("Student registered successfully!");
+                setTimeout(() => setSuccessMessage(""), 3000); // ✅ Hide after 3 seconds
+            },
+        });
     };
 
     // ✅ Correct User Links for Header
@@ -64,6 +90,13 @@ export default function StudentRegistration({ auth, colleges = [] }) {
                 <h2 className="text-2xl font-bold text-center mb-4">
                     {isAdmin ? "Register Student (Admin)" : "Register Student (College)"}
                 </h2>
+
+                {/* ✅ Show Success Message */}
+                {successMessage && (
+                    <div className="mb-4 bg-green-100 border border-green-500 text-green-700 px-4 py-2 rounded">
+                        {successMessage}
+                    </div>
+                )}
 
                 {/* ✅ Form Submission */}
                 <form onSubmit={handleSubmit}>
@@ -101,7 +134,7 @@ export default function StudentRegistration({ auth, colleges = [] }) {
                                         selected={form.dob}
                                         onChange={(date) => setForm({ ...form, dob: date })}
                                         className="w-full p-2 border border-gray-300 rounded-md"
-                                        maxDate={new Date()} // Restrict future dates
+                                        maxDate={new Date()}  // ✅ Restrict future dates
                                         showYearDropdown
                                         scrollableYearDropdown
                                         yearDropdownItemNumber={100}
@@ -120,17 +153,29 @@ export default function StudentRegistration({ auth, colleges = [] }) {
                                     />
                                 </div>
                             </div>
-
-                            <div className="mb-4">
-                                <label className="block text-gray-700 text-sm font-bold mb-2">Father's Name:</label>
-                                <input
-                                    type="text"
-                                    name="fatherName"
-                                    value={form.fatherName}
-                                    onChange={handleChange}
-                                    className="w-full p-2 border border-gray-300 rounded-md"
-                                    required
-                                />
+                            <div className="mb-4 flex gap-2">
+                                <div className="w-1/2">
+                                    <label className="block text-gray-700 text-sm font-bold mb-2">Father's Name:</label>
+                                    <input
+                                        type="text"
+                                        name="fatherName"
+                                        value={form.fatherName}
+                                        onChange={handleChange}
+                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                        required
+                                    />
+                                </div>
+                                <div className="w-1/2">
+                                    <label className="block text-gray-700 text-sm font-bold mb-2">Password:</label>
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        value={form.password}
+                                        onChange={handleChange}
+                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                        required
+                                    />
+                                </div>
                             </div>
                         </div>
 
@@ -213,10 +258,9 @@ export default function StudentRegistration({ auth, colleges = [] }) {
                                     )}
                                 </div>
                             </div>
-
                             <div className="mb-4 flex gap-2">
                                 <div className="w-1/2">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">Passport Number:</label>
+                                    <label className="block text-gray-700 text-sm font-bold mb-2">Passport :</label>
                                     <input
                                         type="text"
                                         name="passportNumber"
@@ -227,7 +271,7 @@ export default function StudentRegistration({ auth, colleges = [] }) {
                                     />
                                 </div>
                                 <div className="w-1/2">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">Visa Number:</label>
+                                    <label className="block text-gray-700 text-sm font-bold mb-2">Visa :</label>
                                     <input
                                         type="text"
                                         name="visaNumber"

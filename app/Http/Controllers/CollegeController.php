@@ -7,9 +7,19 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use App\Models\College;
 use App\Models\Student;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
+
+
 
 class CollegeController extends Controller
 {
+    public function create()
+    {
+        return Inertia::render('AddCollege', [
+            'auth' => ['user' => Auth::user()]
+        ]);
+    }
     public function index()
     {
         $user = Auth::user();
@@ -61,5 +71,31 @@ class CollegeController extends Controller
                 'visaExpired' => $visaExpired,
             ],
         ]);
+    }
+
+    public function store(Request $request)
+    {
+        Log::info('College registration request received:', $request->all()); // ✅ Log Data
+
+        // ✅ Insert College Data into `colleges` table
+        College::create([
+            'college_name' => $request->collegeName,
+            'college_code' => $request->collegeCode,
+            'college_email' => $request->collegeEmail,
+            'college_address' => $request->collegeAddress,
+            'college_state' => $request->collegeState,
+            'college_city' => $request->collegeCity,
+            'college_phone_number' => $request->collegePhoneNumber,
+        ]);
+
+        // ✅ Insert College User into `users` table
+        \App\Models\User::create([
+            'user_email' => $request->collegeEmail,
+            'user_password' => Hash::make($request->password),
+            'user_role' => 'college',
+            'college_code' => $request->collegeCode,
+        ]);
+
+        return back()->with('success', 'College added successfully!');
     }
 }

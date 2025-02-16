@@ -1,12 +1,14 @@
 import Header from "../components/Header";
 import { EyeIcon, PencilIcon, TrashIcon, PlusIcon } from "@heroicons/react/24/solid";
-import { Link } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
 
 export default function StudentList({ auth, students }) {
+    const isAdmin = auth.user.user_role === "admin";
 
-
-    const isAdmin = auth.user.user_role === "admin"; // Ensure correct property name
-
+    // ✅ Ensure students is always an array to prevent .map() errors
+    if (!Array.isArray(students)) {
+        students = [];
+    }
 
     const userLinks = isAdmin
         ? [
@@ -19,9 +21,22 @@ export default function StudentList({ auth, students }) {
             { label: "Students", href: "/college/students" },
         ];
 
+    // ✅ Handle Student Deletion (Admin Only)
+    const handleDelete = (id) => {
+        if (!confirm("Are you sure you want to delete this student?")) return;
+
+        router.delete(`/admin/students/${id}`, {
+            onSuccess: () => {
+                alert("Student deleted successfully!");
+            },
+            onError: (errors) => {
+                console.error("Error deleting student:", errors);
+            },
+        });
+    };
+
     return (
         <div>
-            {/* ✅ Header Component */}
             <Header user={auth.user} links={userLinks} />
 
             <div className="max-w-7xl mx-auto mt-6">
@@ -69,22 +84,35 @@ export default function StudentList({ auth, students }) {
                                     <td className="py-2 px-2 text-left">{student.student_country}</td>
                                     <td className="py-2 px-2 text-left">{student.student_passport_number}</td>
                                     <td className="py-2 px-2 text-left">{student.student_visa_number}</td>
-                                    <td className={`py-2 px-2 font-bold ${student.student_visa_status === "Approved" ? "text-green-600" : student.student_visa_status === "Pending" ? "text-yellow-600" : "text-red-600"}`}>
+                                    <td className={`py-2 px-2 font-bold text-left ${student.student_visa_status === "Approved" ? "text-green-600" : student.student_visa_status === "Pending" ? "text-yellow-600" : "text-red-600"}`}>
                                         {student.student_visa_status}
                                     </td>
                                     <td className="py-2 px-2 flex justify-center gap-2">
-                                        <button className="text-blue-500 hover:text-blue-700">
+                                        {/* ✅ View Student */}
+                                        <Link href={`/admin/view-student/${student.id}`} className="text-blue-500 hover:text-blue-700">
                                             <EyeIcon className="h-5 w-5" />
-                                        </button>
-                                        <button className="text-green-500 hover:text-green-700">
+                                        </Link>
+
+                                        {/* ✅ Edit Student */}
+                                        <Link
+                                            href={isAdmin ? `/admin/edit-student/${student.id}` : `/college/edit-student/${student.id}`}
+                                            className="text-green-500 hover:text-green-700"
+                                        >
                                             <PencilIcon className="h-5 w-5" />
-                                        </button>
+                                        </Link>
+
+
+                                        {/* ✅ Delete Student (Admin Only) */}
                                         {isAdmin && (
-                                            <button className="text-red-500 hover:text-red-700">
+                                            <button
+                                                onClick={() => handleDelete(student.id)}
+                                                className="text-red-500 hover:text-red-700"
+                                            >
                                                 <TrashIcon className="h-5 w-5" />
                                             </button>
                                         )}
                                     </td>
+
                                 </tr>
                             ))}
                         </tbody>

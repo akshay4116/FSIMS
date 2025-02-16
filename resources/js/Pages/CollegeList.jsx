@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import Header from "../components/Header";
-import { EyeIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { EyeIcon, PencilIcon, TrashIcon, PlusIcon } from "@heroicons/react/24/solid";
+import { Link } from "@inertiajs/react"; // ✅ Use Inertia Link
 
 export default function CollegeList({ auth, colleges = [] }) {
     useEffect(() => {
@@ -15,10 +16,22 @@ export default function CollegeList({ auth, colleges = [] }) {
 
     return (
         <div>
+            {/* ✅ Include Header */}
             <Header user={auth.user} links={userLinks} />
 
             <div className="max-w-7xl mx-auto mt-6">
-                <h2 className="text-2xl font-bold text-center mb-6">College List</h2>
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-2xl font-bold">College List</h2>
+
+                    {/* ✅ Add College Button (Only for Admin) */}
+                    <Link
+                        href="/admin/add-college"
+                        className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow"
+                    >
+                        <PlusIcon className="h-5 w-5" />
+                        Add College
+                    </Link>
+                </div>
 
                 <div className="border rounded-lg overflow-hidden shadow-md">
                     <h3 className="bg-gray-200 py-2 text-center font-bold text-lg">Colleges</h3>

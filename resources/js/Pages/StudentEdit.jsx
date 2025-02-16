@@ -78,20 +78,30 @@ export default function StudentEdit({ auth, student }) {
                     <h2 className="text-2xl font-bold text-center flex-1">Edit Student Details</h2>
                     <div className="bg-gray-200 rounded-lg shadow px-2 py-2 font-bold">
                         Visa Status for 2025&nbsp;
-                        <select
-                            name="visaStatus"
-                            value={form.visaStatus}
-                            onChange={handleChange}
-                            className={`px-6 py-2 border-0 text-white font-bold outline-none cursor-pointer rounded-lg transition-colors duration-300 ${form.visaStatus === "Approved" ? "bg-green-500" :
-                                form.visaStatus === "Pending" ? "bg-yellow-500 text-black" :
-                                    "bg-red-500"
-                                }`}
-                        >
-                            <option value="Pending">Pending</option>
-                            <option value="Approved">Approved</option>
-                            <option value="Rejected">Rejected</option>
-                        </select>
+                        {isAdmin ? (
+                            <select
+                                name="visaStatus"
+                                value={form.visaStatus}
+                                onChange={handleChange}
+                                className={`px-6 py-2 border-0 text-white font-bold outline-none cursor-pointer rounded-lg transition-colors duration-300 ${form.visaStatus === "Approved" ? "bg-green-500" :
+                                    form.visaStatus === "Pending" ? "bg-yellow-500 text-black" :
+                                        "bg-red-500"
+                                    }`}
+                            >
+                                <option value="Pending">Pending</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                        ) : (
+                            <span className={`px-6 py-2 rounded-lg ${form.visaStatus === "Approved" ? "text-green-600" :
+                                form.visaStatus === "Pending" ? "text-yellow-600" :
+                                    "text-red-600"
+                                }`}>
+                                {form.visaStatus}
+                            </span>
+                        )}
                     </div>
+
 
                 </div>
 

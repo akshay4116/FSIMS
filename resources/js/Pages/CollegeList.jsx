@@ -2,8 +2,10 @@ import { useEffect } from "react";
 import Header from "../components/Header";
 import { EyeIcon, PencilIcon, TrashIcon, PlusIcon } from "@heroicons/react/24/solid";
 import { Link } from "@inertiajs/react"; // ✅ Use Inertia Link
+import { router } from "@inertiajs/react"; // ✅ Import router
 
-export default function CollegeList({ auth, colleges = [] }) {
+
+export default function CollegeList({ auth, colleges = [], errorMessage = null, successMessage = null }) {
     useEffect(() => {
         console.log("Colleges Data:", colleges); // ✅ Debug Data
     }, [colleges]);
@@ -13,6 +15,24 @@ export default function CollegeList({ auth, colleges = [] }) {
         { label: "Colleges", href: "/admin/colleges" },
         { label: "Students", href: "/admin/students" },
     ];
+
+
+    useEffect(() => {
+        if (errorMessage) {
+            alert(errorMessage); // ✅ Show error if students exist
+        }
+        if (successMessage) {
+            alert(successMessage); // ✅ Show success if college deleted
+        }
+    }, [errorMessage, successMessage]);
+
+    const handleDelete = (id) => {
+        if (!confirm("Are you sure you want to delete this college?")) return;
+
+        router.delete(`/admin/colleges/${id}`, {
+            preserveScroll: true, // ✅ Keep the page state
+        });
+    };
 
     return (
         <div>
@@ -32,13 +52,13 @@ export default function CollegeList({ auth, colleges = [] }) {
                         Add College
                     </Link>
                 </div>
+                {colleges.length === 0 ? (
+                    <p className="bg-gray-200 py-2 text-center font-bold text-lg rounded-lg">No colleges available.</p>
+                ) : (
+                    <div className="border rounded-lg overflow-hidden shadow-md">
+                        <h3 className="bg-gray-200 py-2 text-center font-bold text-lg">Colleges</h3>
 
-                <div className="border rounded-lg overflow-hidden shadow-md">
-                    <h3 className="bg-gray-200 py-2 text-center font-bold text-lg">Colleges</h3>
 
-                    {colleges.length === 0 ? (
-                        <p className="text-center text-gray-600 py-4">No colleges available.</p>
-                    ) : (
                         <table className="w-full border-collapse text-left">
                             <thead>
                                 <tr className="bg-purple-600 text-white">
@@ -65,13 +85,16 @@ export default function CollegeList({ auth, colleges = [] }) {
                                         <td className="py-2 px-4 text-left">{college.college_city}</td>
                                         <td className="py-2 px-4 text-left">{college.college_phone_number}</td>
                                         <td className="py-2 px-4 flex justify-left gap-2">
-                                            <button className="text-blue-500 hover:text-blue-700">
+                                            <Link href={`/admin/view-college/${college.id}`} className="text-blue-500 hover:text-blue-700">
                                                 <EyeIcon className="h-5 w-5" />
-                                            </button>
-                                            <button className="text-green-500 hover:text-green-700">
+                                            </Link>
+                                            <Link href={`/admin/edit-college/${college.id}`} className="text-green-500 hover:text-green-700">
                                                 <PencilIcon className="h-5 w-5" />
-                                            </button>
-                                            <button className="text-red-500 hover:text-red-700">
+                                            </Link>
+                                            <button
+                                                onClick={() => handleDelete(college.id)}
+                                                className="text-red-500 hover:text-red-700"
+                                            >
                                                 <TrashIcon className="h-5 w-5" />
                                             </button>
                                         </td>
@@ -79,9 +102,11 @@ export default function CollegeList({ auth, colleges = [] }) {
                                 ))}
                             </tbody>
                         </table>
-                    )}
-                </div>
+
+                    </div>
+                )}
             </div>
+
         </div>
     );
 }

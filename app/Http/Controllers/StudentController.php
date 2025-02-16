@@ -16,24 +16,26 @@ class StudentController extends Controller
     /**
      * Show Student Registration Form.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
 
-        // ✅ Admin sees ALL students, College sees only their students
+        // Fetch paginated students (4 per page)
         if ($user->user_role === 'admin') {
-            $students = Student::all(); // ✅ Fetch all students without 'with' relation
+            $students = Student::paginate(4);
         } else {
-            $students = Student::where('college_code', $user->college_code)->get(); // ✅ Only students from college
+            $students = Student::where('college_code', $user->college_code)->paginate(4);
         }
 
-        \Log::info('Fetched Students:', ['students' => $students->toArray()]); // ✅ Debugging Log
+        // Log the students data to ensure it's being fetched correctly
+        \Log::info('Students Data:', $students->toArray());
 
         return Inertia::render('StudentList', [
             'auth' => ['user' => $user],
-            'students' => $students // ✅ Pass students correctly
+            'initialStudents' => $students // Key name MUST match the prop name
         ]);
     }
+
 
 
     public function dashboard()
@@ -200,6 +202,38 @@ class StudentController extends Controller
             return redirect()->back()->withErrors(['error' => 'Failed to update student.']);
         }
     }
+
+    public function destroy($id)
+    {
+        try {
+            $student = Student::findOrFail($id);
+
+            // ✅ Find and delete corresponding user
+            $user = User::where('user_email', $student->student_email)->first();
+            if ($user) {
+                $user->delete();
+            }
+
+            // ✅ Delete student record from students table
+            $student->delete();
+
+            \Log::info('Student and user deleted successfully:', ['id' => $id]);
+
+            return Inertia::render('StudentList', [
+                'auth' => ['user' => Auth::user()],
+                'initialStudents' => Student::paginate(4), // ✅ Ensure paginated list updates
+                'successMessage' => 'Student deleted successfully!'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error deleting student: ' . $e->getMessage());
+            return Inertia::render('StudentList', [
+                'auth' => ['user' => Auth::user()],
+                'initialStudents' => Student::paginate(4),
+                'errorMessage' => 'Failed to delete student.'
+            ]);
+        }
+    }
+
 
 
 

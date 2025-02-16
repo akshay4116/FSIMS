@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use App\Models\College;
 use App\Models\Student;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 
@@ -98,4 +99,110 @@ class CollegeController extends Controller
 
         return back()->with('success', 'College added successfully!');
     }
+
+    public function view($id)
+    {
+        $user = Auth::user();
+
+        // ✅ Fetch College Details
+        $college = College::find($id);
+
+        if (!$college) {
+            abort(404, 'College Not Found');
+        }
+
+        return Inertia::render('CollegeView', [
+            'auth' => ['user' => $user],
+            'college' => $college
+        ]);
+    }
+
+    public function edit($id)
+    {
+        $college = College::findOrFail($id);
+
+        return Inertia::render('CollegeEdit', [
+            'auth' => ['user' => Auth::user()],
+            'college' => $college
+        ]);
+    }
+
+
+    public function update(Request $request, $id)
+    {
+        try {
+            \Log::info('College update request received:', $request->all());
+
+            $college = College::findOrFail($id);
+            $college->update([
+                'college_name' => $request->collegeName,
+                'college_phone_number' => $request->phoneNumber,
+                'college_address' => $request->address,
+                'college_city' => $request->city,
+                'college_state' => $request->state,
+            ]);
+
+            // ✅ Update password only if provided
+            if ($request->filled('password')) {
+                User::where('college_code', $college->college_code)
+                    ->where('user_role', 'college')
+                    ->update(['user_password' => Hash::make($request->password)]);
+            }
+
+            \Log::info('College updated successfully:', ['id' => $id]);
+
+            return redirect()->back()->with('success', 'College updated successfully!');
+        } catch (\Exception $e) {
+            \Log::error('Error updating college: ' . $e->getMessage());
+            return redirect()->back()->withErrors(['error' => 'Failed to update college.']);
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $college = College::findOrFail($id);
+
+            // ✅ Check if students exist for this college
+            $studentsExist = \App\Models\Student::where('college_code', $college->college_code)->exists();
+            if ($studentsExist) {
+                return Inertia::render('CollegeList', [
+                    'auth' => ['user' => Auth::user()],
+                    'colleges' => College::all(),
+                    'errorMessage' => 'Cannot delete this college as student records exist!'
+                ]);
+            }
+
+            // ✅ Find and delete corresponding user
+            $user = User::where('college_code', $college->college_code)
+                ->where('user_role', 'college')
+                ->first();
+
+            if ($user) {
+                $user->delete();
+            }
+
+            // ✅ Delete college record
+            $college->delete();
+
+            \Log::info('College deleted successfully:', ['id' => $id]);
+
+            return Inertia::render('CollegeList', [
+                'auth' => ['user' => Auth::user()],
+                'colleges' => College::all(),
+                'successMessage' => 'College deleted successfully!'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error deleting college: ' . $e->getMessage());
+            return Inertia::render('CollegeList', [
+                'auth' => ['user' => Auth::user()],
+                'colleges' => College::all(),
+                'errorMessage' => 'Failed to delete college.'
+            ]);
+        }
+    }
+
+
+
+
 }

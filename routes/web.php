@@ -59,6 +59,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::get('/admin/edit-student/{id}', [StudentController::class, 'edit']);
         Route::post('/admin/update-student/{id}', [StudentController::class, 'update']); // 🔥 Use POST instead of PUT
+        Route::delete('/admin/students/{id}', [StudentController::class, 'destroy']);
+
     });
 
     Route::middleware(['auth', 'role:college'])->group(function () {
@@ -66,7 +68,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/college/update-student/{id}', [StudentController::class, 'update']); // 🔥 Use POST instead of PUT
     });
 
-
+    Route::middleware(['auth', 'role:admin'])->group(function () {
+        Route::get('/admin/view-college/{id}', [CollegeController::class, 'view']);
+        Route::get('/admin/edit-college/{id}', [CollegeController::class, 'edit']);
+        Route::post('/admin/update-college/{id}', [CollegeController::class, 'update']);
+        Route::delete('/admin/colleges/{id}', [CollegeController::class, 'destroy']);
+    });
 
 
 });

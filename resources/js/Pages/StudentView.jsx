@@ -2,7 +2,7 @@ import Header from "../components/Header";
 import { Link } from "@inertiajs/react";
 
 import {
-    AcademicCapIcon, MapPinIcon, PhoneIcon, EnvelopeIcon, GlobeAltIcon, IdentificationIcon,
+    DocumentIcon, AcademicCapIcon, MapPinIcon, PhoneIcon, EnvelopeIcon, GlobeAltIcon, IdentificationIcon,
     ClockIcon, CheckCircleIcon, XCircleIcon, ArrowLeftIcon, ChatBubbleBottomCenterTextIcon
 } from "@heroicons/react/24/solid";
 
@@ -113,6 +113,70 @@ export default function StudentView({ auth, student }) {
                                 <span>{student.student_visa_number}</span>
                             </li>
                         </ul>
+                        {/* ✅ Uploaded Documents Section */}
+                        <div className="mt-6">
+                            <h3 className="text-lg font-bold mb-4 flex items-center">
+                                <DocumentIcon className="h-6 w-6 text-blue-600 mr-2" /> Uploaded Documents
+                            </h3>
+                            <ul className="space-y-3 text-lg">
+                                {/* Passport Copy */}
+                                {student.passport_copy ? (
+                                    <li className="flex justify-between border-b pb-2">
+                                        <span className="flex items-center">
+                                            <DocumentIcon className="h-5 w-5 text-gray-600 mr-2" /> Passport Copy:
+                                        </span>
+                                        <a
+                                            href={`/storage/${student.passport_copy}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-500 hover:text-blue-700 underline"
+                                        >
+                                            View PDF
+                                        </a>
+                                    </li>
+                                ) : (
+                                    <li className="text-gray-400">Passport Copy: Not Uploaded</li>
+                                )}
+
+                                {/* Visa Document */}
+                                {student.visa_document ? (
+                                    <li className="flex justify-between border-b pb-2">
+                                        <span className="flex items-center">
+                                            <DocumentIcon className="h-5 w-5 text-gray-600 mr-2" /> Visa Document:
+                                        </span>
+                                        <a
+                                            href={`/storage/${student.visa_document}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-500 hover:text-blue-700 underline"
+                                        >
+                                            View PDF
+                                        </a>
+                                    </li>
+                                ) : (
+                                    <li className="text-gray-400">Visa Document: Not Uploaded</li>
+                                )}
+
+                                {/* Academic Certificate */}
+                                {student.academic_certificate ? (
+                                    <li className="flex justify-between">
+                                        <span className="flex items-center">
+                                            <DocumentIcon className="h-5 w-5 text-gray-600 mr-2" /> Academic Certificate:
+                                        </span>
+                                        <a
+                                            href={`/storage/${student.academic_certificate}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-500 hover:text-blue-700 underline"
+                                        >
+                                            View PDF
+                                        </a>
+                                    </li>
+                                ) : (
+                                    <li className="text-gray-400">Academic Certificate: Not Uploaded</li>
+                                )}
+                            </ul>
+                        </div>
                     </div>
 
                     {/* ✅ Right Side - Visa Status & Comments */}

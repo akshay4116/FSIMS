@@ -8,6 +8,8 @@ export default function StudentList({ auth, initialStudents }) {
     const [studentData, setStudentData] = useState([]);
     const [paginationLinks, setPaginationLinks] = useState([]);
     const [currentPage, setCurrentPage] = useState(1); // Keep track of current page
+    const [searchQuery, setSearchQuery] = useState(""); // ✅ Search state
+
     const isAdmin = auth.user.user_role === "admin";
 
     useEffect(() => {
@@ -29,6 +31,21 @@ export default function StudentList({ auth, initialStudents }) {
             { label: "Dashboard", href: "/college/dashboard" },
             { label: "Students", href: "/college/students" },
         ];
+
+    // ✅ Handle Search Functionality
+    const handleSearch = (event) => {
+        const query = event.target.value;
+        setSearchQuery(query);
+
+        // 🔥 Check user role and use the correct endpoint
+        const searchUrl = isAdmin ? "/admin/students" : "/college/students";
+
+        router.get(searchUrl, { search: query }, {
+            preserveState: true,
+            preserveScroll: true
+        });
+    };
+
 
     const handlePageChange = (link) => {
         if (link && link.url) {
@@ -67,6 +84,13 @@ export default function StudentList({ auth, initialStudents }) {
                     <h2 className="text-2xl font-bold">
                         {isAdmin ? "Student List (Admin)" : "Student List (College)"}
                     </h2>
+                    <input
+                        type="text"
+                        placeholder="Search by name, phone, address, visa status..."
+                        value={searchQuery}
+                        onChange={handleSearch}
+                        className="border p-2 rounded-lg w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
                     <Link
                         href={isAdmin ? "/admin/register-student" : "/college/register-student"}
                         className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow"
@@ -76,11 +100,9 @@ export default function StudentList({ auth, initialStudents }) {
                     </Link>
                 </div>
 
-                {studentData.length === 0 && (
-                    <p className="bg-gray-200 py-2 text-center font-bold text-lg rounded-lg">No students available from database</p>
-                )}
-
-                {studentData.length > 0 && (
+                {studentData.length === 0 ? (
+                    <p className="bg-gray-200 py-2 text-center font-bold text-lg rounded-lg">No matching students found.</p>
+                ) : (
                     <div className="border rounded-lg overflow-hidden shadow-md">
                         <table className="w-full border-collapse">
                             <thead>
@@ -138,6 +160,7 @@ export default function StudentList({ auth, initialStudents }) {
                         </table>
                     </div>
                 )}
+
 
                 <div className="flex justify-center mt-4">
                     {paginationLinks.map((link, index) => (

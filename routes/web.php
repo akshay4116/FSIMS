@@ -29,7 +29,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/add-college', [CollegeController::class, 'create']);
     Route::post('/admin/store-college', [CollegeController::class, 'store']);
     Route::middleware(['auth', 'role:admin'])->get('/admin/students', [StudentController::class, 'index']);
-    Route::middleware(['auth', 'role:college'])->get('/college/students', [StudentController::class, 'index']);
 
     // ✅ Logout Route
     Route::post('/logout', function () {
@@ -73,6 +72,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/edit-college/{id}', [CollegeController::class, 'edit']);
         Route::post('/admin/update-college/{id}', [CollegeController::class, 'update']);
         Route::delete('/admin/colleges/{id}', [CollegeController::class, 'destroy']);
+    });
+    Route::middleware(['auth', 'role:college'])->group(function () {
+        Route::get('/college/students', [StudentController::class, 'index']);
     });
 
 

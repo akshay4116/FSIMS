@@ -19,22 +19,40 @@ class StudentController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
+        $search = $request->query('search');
 
-        // Fetch paginated students (4 per page)
-        if ($user->user_role === 'admin') {
-            $students = Student::paginate(4);
-        } else {
-            $students = Student::where('college_code', $user->college_code)->paginate(4);
+        // ✅ Restrict college users to only see their own students
+        $query = Student::query();
+        if ($user->user_role === 'college') {
+            $query->where('college_code', $user->college_code);
         }
 
-        // Log the students data to ensure it's being fetched correctly
+        // ✅ Apply search filter if query exists
+        if ($search) {
+            $query->where(function ($q) use ($search, $user) {
+                $q->whereRaw('LOWER(student_name) LIKE ?', ["%" . strtolower($search) . "%"])
+                    ->orWhereRaw('LOWER(student_phone_number) LIKE ?', ["%" . strtolower($search) . "%"])
+                    ->orWhereRaw('LOWER(student_address) LIKE ?', ["%" . strtolower($search) . "%"])
+                    ->orWhereRaw('LOWER(student_visa_status) LIKE ?', ["%" . strtolower($search) . "%"]); // 🔥 Case-Insensitive Search
+
+                // 🔥 Ensure college users can only search within their college
+                if ($user->user_role === 'college') {
+                    $q->where('college_code', $user->college_code);
+                }
+            });
+        }
+
+        $students = $query->paginate(4); // ✅ Keep pagination with search applied
+
         \Log::info('Students Data:', $students->toArray());
 
         return Inertia::render('StudentList', [
             'auth' => ['user' => $user],
-            'initialStudents' => $students // Key name MUST match the prop name
+            'initialStudents' => $students
         ]);
     }
+
+
 
 
 
@@ -98,6 +116,11 @@ class StudentController extends Controller
                 'college_code' => $collegeCode,
             ]);
 
+            $passportPath = $request->file('passportCopy') ? $request->file('passportCopy')->store('uploads', 'public') : null;
+            $visaPath = $request->file('visaDocument') ? $request->file('visaDocument')->store('uploads', 'public') : null;
+            $academicPath = $request->file('academicCertificate') ? $request->file('academicCertificate')->store('uploads', 'public') : null;
+
+
             // Create Student Profile in `students` table
             Student::create([
                 'student_name' => $request->studentName,
@@ -115,6 +138,10 @@ class StudentController extends Controller
                 'college_code' => $collegeCode,
                 'college_comments' => '', // Default empty
                 'admin_comments' => '', // Default empty
+                'passport_copy' => $passportPath ? "/storage/$passportPath" : null,
+                'visa_document' => $visaPath ? "/storage/$visaPath" : null,
+                'academic_certificate' => $academicPath ? "/storage/$academicPath" : null,
+
             ]);
 
             \Log::info('Student registered successfully:', ['email' => $request->email]);
@@ -166,6 +193,22 @@ class StudentController extends Controller
             \Log::info('Student update request received:', $request->all());
 
             $student = Student::findOrFail($id);
+
+            // ✅ Handle File Uploads (If Admin Uploaded New Files)
+            $passportPath = $student->passport_copy;
+            $visaPath = $student->visa_document;
+            $academicPath = $student->academic_certificate;
+
+            if ($request->hasFile('passportCopy')) {
+                $passportPath = $request->file('passportCopy')->store('uploads', 'public');
+            }
+            if ($request->hasFile('visaDocument')) {
+                $visaPath = $request->file('visaDocument')->store('uploads', 'public');
+            }
+            if ($request->hasFile('academicCertificate')) {
+                $academicPath = $request->file('academicCertificate')->store('uploads', 'public');
+            }
+
             $student->update([
                 'student_name' => $request->studentName,
                 'student_phone_number' => $request->phoneNumber,
@@ -178,6 +221,9 @@ class StudentController extends Controller
                 'student_visa_status' => $request->visaStatus,
                 'college_comments' => $request->collegeComments, // ✅ Fix: Save college comments
                 'admin_comments' => $request->adminComments, // ✅ Fix: Save admin comments
+                'passport_copy' => $passportPath,
+                'visa_document' => $visaPath,
+                'academic_certificate' => $academicPath,
             ]);
 
             // ✅ Update password only if provided

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { router } from "@inertiajs/react";
 import Header from "../components/Header";
 import {
@@ -38,21 +38,60 @@ export default function StudentEdit({ auth, student }) {
         collegeComments: student.college_comments,
         adminComments: student.admin_comments,
         password: "",
+        passportCopy: null,
+        visaDocument: null,
+        academicCertificate: null,
     });
+
+    const passportRef = useRef(null);
+    const visaRef = useRef(null);
+    const academicRef = useRef(null);
+
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file && file.type !== "application/pdf") {
+            alert("Only PDF files are allowed!");
+            return;
+        }
+        if (file && file.size > 5 * 1024 * 1024) {
+            alert("File size should not exceed 5MB!");
+            return;
+        }
+        setForm({ ...form, [e.target.name]: file });
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
+        const formData = new FormData();
+        Object.keys(form).forEach((key) => {
+            formData.append(key, form[key]);
+        });
+
         const updatedData = { ...form };
         if (!form.password) {
             delete updatedData.password;
         }
         router.post(isAdmin ? `/admin/update-student/${student.id}` : `/college/update-student/${student.id}`, form, {
             preserveScroll: true,
-            onSuccess: () => alert("Student updated successfully!"),
+            onSuccess: () => {
+                alert("Student updated successfully!");
+                setForm((prev) => ({
+                    ...prev,
+                    passportCopy: null,
+                    visaDocument: null,
+                    academicCertificate: null,
+                }));
+
+                // Reset File Inputs
+                if (passportRef.current) passportRef.current.value = "";
+                if (visaRef.current) visaRef.current.value = "";
+                if (academicRef.current) academicRef.current.value = "";
+            },
             onError: (errors) => console.error("Update error:", errors)
         });
     };
@@ -106,9 +145,9 @@ export default function StudentEdit({ auth, student }) {
                 </div>
 
                 <form onSubmit={handleSubmit}>
-                    <div className="grid grid-cols-3 gap-6">
+                    <div className="grid grid-cols-2 gap-6">
                         {/* Left Side - Student Information */}
-                        <div className="col-span-2 bg-gray-100 p-4 rounded-lg shadow-md">
+                        <div className="col-span-1 bg-gray-100 p-4 rounded-lg shadow-md">
                             <h3 className="text-lg font-bold mb-4 flex items-center">
                                 <IdentificationIcon className="h-6 w-6 text-blue-600 mr-2" /> Student Information
                             </h3>
@@ -161,8 +200,44 @@ export default function StudentEdit({ auth, student }) {
                                     />
                                 </div>
                             ))}
+                            {isAdmin && (
+                                <div className="bg-gray-100 p-4 rounded-lg shadow-md flex-1 flex flex-col">
+
+                                    <div className="">
+                                        <h3 className="text-lg font-bold mb-4">File Uploads (Admin Only)</h3>
+                                        <div className="grid grid-cols-2 gap-6 mb-4">
+                                            {[
+                                                { field: "passportCopy", label: "Passport Copy", ref: passportRef, existingFile: student.passport_copy },
+                                                { field: "visaDocument", label: "Visa Document", ref: visaRef, existingFile: student.visa_document },
+                                                { field: "academicCertificate", label: "Academic Certificate", ref: academicRef, existingFile: student.academic_certificate },
+                                            ].map(({ field, label, ref, existingFile }) => (
+
+                                                <div key={field} className="mb-4">
+                                                    <label className="block text-gray-700 text-sm font-bold mb-2">{label} (PDF Only):</label>
+                                                    {existingFile && (
+                                                        <a href={`/storage/${existingFile}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 underline block mb-2">
+                                                            View Existing File
+                                                        </a>
+                                                    )}
+                                                    <input
+                                                        type="file"
+                                                        name={field}
+                                                        accept="application/pdf"
+                                                        onChange={handleFileChange}
+                                                        ref={ref}
+                                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                                    />
+                                                </div>
+
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                </div>
+                            )}
                         </div>
                     </div>
+
 
                     {/* Submit Button */}
                     <button

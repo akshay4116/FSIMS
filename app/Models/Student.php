@@ -26,6 +26,9 @@ class Student extends Model
         'college_code',
         'college_comments',
         'admin_comments',
+        'passport_copy',
+        'visa_document',
+        'academic_certificate',
     ];
 
     public function college(): BelongsTo

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Header from "../components/Header";
 import { router } from "@inertiajs/react";
 import DatePicker from "react-datepicker";
@@ -31,9 +31,32 @@ export default function StudentRegistration({ auth, colleges = [] }) {
         collegeCode: isAdmin ? "" : auth?.user?.college_code, // ✅ Auto-assign for College users
         passportNumber: "",
         visaNumber: "",
+        password: "",
+        passportCopy: null,
+        visaDocument: null,
+        academicCertificate: null,
     });
 
     const [successMessage, setSuccessMessage] = useState(""); // ✅ Success Message State
+
+    // ✅ Create refs for file inputs
+    const passportRef = useRef(null);
+    const visaRef = useRef(null);
+    const academicRef = useRef(null);
+
+    // ✅ Handle File Selection
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file && file.type !== "application/pdf") {
+            alert("Only PDF files are allowed!");
+            return;
+        }
+        if (file && file.size > 5 * 1024 * 1024) {
+            alert("File size should not exceed 5MB!");
+            return;
+        }
+        setForm({ ...form, [e.target.name]: file });
+    };
 
     // ✅ Handle Form Input Changes
     const handleChange = (e) => {
@@ -43,7 +66,13 @@ export default function StudentRegistration({ auth, colleges = [] }) {
     // ✅ Handle Form Submission
     const handleSubmit = (e) => {
         e.preventDefault();
+        const formData = new FormData();
+        Object.keys(form).forEach((key) => {
+            formData.append(key, form[key]);
+        });
+
         router.post(isAdmin ? "/admin/register-student" : "/college/register-student", form, {
+            headers: { "Content-Type": "multipart/form-data" },
             onSuccess: () => {
                 // ✅ Clear Form After Successful Submission
                 setForm({
@@ -60,7 +89,15 @@ export default function StudentRegistration({ auth, colleges = [] }) {
                     passportNumber: "",
                     visaNumber: "",
                     password: "",
+                    passportCopy: null,
+                    visaDocument: null,
+                    academicCertificate: null,
                 });
+
+                // ✅ Reset file inputs using refs
+                if (passportRef.current) passportRef.current.value = "";
+                if (visaRef.current) visaRef.current.value = "";
+                if (academicRef.current) academicRef.current.value = "";
 
                 // ✅ Show Success Message
                 setSuccessMessage("Student registered successfully!");
@@ -99,7 +136,7 @@ export default function StudentRegistration({ auth, colleges = [] }) {
                 )}
 
                 {/* ✅ Form Submission */}
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} encType="multipart/form-data">
                     <div className="grid grid-cols-2 gap-6">
                         {/* LEFT SIDE */}
                         <div>
@@ -284,6 +321,48 @@ export default function StudentRegistration({ auth, colleges = [] }) {
                             </div>
                         </div>
                     </div>
+                    <div className="mb-4 grid grid-cols-3 gap-4">
+                        {/* ✅ Passport Copy */}
+                        <div>
+                            <label className="block text-gray-700 text-sm font-bold mb-2">Passport Copy (PDF Only):</label>
+                            <input
+                                type="file"
+                                name="passportCopy"
+                                accept="application/pdf"
+                                onChange={handleFileChange}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                                ref={passportRef} // ✅ Assign ref to reset
+                            />
+                        </div>
+
+                        {/* ✅ Visa Document */}
+                        <div>
+                            <label className="block text-gray-700 text-sm font-bold mb-2">Visa Document (PDF Only):</label>
+                            <input
+                                type="file"
+                                name="visaDocument"
+                                accept="application/pdf"
+                                onChange={handleFileChange}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                                ref={visaRef} // ✅ Assign ref to reset
+                            />
+                        </div>
+
+                        {/* ✅ Academic Certificate */}
+                        <div>
+                            <label className="block text-gray-700 text-sm font-bold mb-2">Academic Certificate (PDF Only):</label>
+                            <input
+                                type="file"
+                                name="academicCertificate"
+                                accept="application/pdf"
+                                onChange={handleFileChange}
+                                className="w-full p-2 border border-gray-300 rounded-md"
+                                ref={academicRef} // ✅ Assign ref to reset
+                            />
+                        </div>
+                    </div>
+
+
 
                     <button type="submit" className="w-full bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600 transition">
                         Register
